@@ -2,8 +2,6 @@ require("dotenv").config();
 const { Client, GatewayIntentBits, Partials, AttachmentBuilder, EmbedBuilder } = require("discord.js");
 const { createCanvas, loadImage } = require("@napi-rs/canvas");
 
-
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -15,28 +13,27 @@ const client = new Client({
 });
 
 // Bot hazır
-client.once("clientReady", () => {
+client.once("ready", () => {
   console.log(`✅ ${client.user.tag} olarak giriş yapıldı.`);
 });
 
-// Yeni üye katıldığında: Kayıtsız rolü + hoşgeldin mesajı
+// Yeni üye katıldığında: Kayıtsız rolü + hoşgeldin mesajı + görsel
 client.on("guildMemberAdd", async member => {
-  // Kanal ve rol isimleri emoji ile tam eşleşmeli
   const hosgeldinKanal = member.guild.channels.cache.find(c => c.name === "👋・hoşgeldin");
   const kayitsizKanal = member.guild.channels.cache.find(c => c.name === "💬・kayıtsız-sohbet");
   const kayitsizRol = member.guild.roles.cache.find(r => r.name === "Kayıtsız");
 
   if (kayitsizRol) await member.roles.add(kayitsizRol);
 
-  // Canvas ile üst düzey hoşgeldin görseli
+  // Canvas ile BROWN temalı hoşgeldin görseli
   const canvas = createCanvas(800, 300);
   const ctx = canvas.getContext("2d");
 
-  const background = await loadImage("https://i.imgur.com/COz8oJv.png");
+  const background = await loadImage("https://copilot.microsoft.com/th/id/BCO.1fe08b7d-091e-40b1-ad82-8eef2f76d5f9.png");
   ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = "#00ffff";
-  ctx.lineWidth = 5;
+  ctx.strokeStyle = "#8B4513";
+  ctx.lineWidth = 4;
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
   const avatar = await loadImage(member.user.displayAvatarURL({ extension: "png", size: 256 }));
@@ -50,19 +47,19 @@ client.on("guildMemberAdd", async member => {
 
   ctx.font = "bold 40px Sans";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText("Sunucumuza Hoş Geldin!", 300, 130);
+  ctx.fillText("BROWN Sunucusuna Hoş Geldin!", 300, 130);
   ctx.font = "28px Sans";
-  ctx.fillStyle = "#00ffff";
+  ctx.fillStyle = "#8B4513";
   ctx.fillText(`${member.user.username}`, 300, 180);
 
-  const attachment = new AttachmentBuilder(canvas.toBuffer(), { name: "hosgeldin.png" });
+  const attachment = new AttachmentBuilder(canvas.toBuffer("image/png"), { name: "brown-banner.png" });
 
   const embed = new EmbedBuilder()
-    .setColor("#00ffff")
-    .setTitle("👋 Aramıza Yeni Bir Üye Katıldı!")
-    .setDescription(`> ${member} sunucumuza katıldı!\n🧾 Kayıtsız-sohbet kanalına geçip kayıt işlemini tamamlayın.`)
-    .setImage("attachment://hosgeldin.png")
-    .setFooter({ text: `${member.guild.name} ailesine hoş geldin 💙`, iconURL: member.guild.iconURL() })
+    .setColor("#8B4513")
+    .setTitle("👋 Yeni Üye Geldi!")
+    .setDescription(`> ${member} sunucumuza katıldı!\n💬 Kayıtsız-sohbet kanalına geçip kayıt işlemini tamamlayın.`)
+    .setImage("attachment://brown-banner.png")
+    .setFooter({ text: `${member.guild.name} ailesine hoş geldin 🤎`, iconURL: member.guild.iconURL() })
     .setTimestamp();
 
   if (hosgeldinKanal) hosgeldinKanal.send({ embeds: [embed], files: [attachment] });
@@ -92,10 +89,9 @@ client.on("messageCreate", async message => {
   }
   await hedef.roles.add(uyeRol);
 
-  // Kayıt mesajını bot kendi embed’i ile gönderiyor
   const embed = new EmbedBuilder()
-    .setColor("#00ffff")
-    .setDescription(`✅ ${hedef} kaydı tamamlandı! Artık sunucunun tam bir üyesi.`);
+    .setColor("#8B4513")
+    .setDescription(`✅ ${hedef} başarıyla kayıt edildi! Artık tam bir BROWN üyesi.`);
 
   message.channel.send({ embeds: [embed] });
 });
